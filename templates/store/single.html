@@ -1,0 +1,208 @@
+{% extends "../base.html" %}
+{% load static %}
+{% block stylesheet %}{% static 'store/css/store.css' %}{% endblock %}
+{% block title %}
+{% if hospotal %}{{ hospital.title }}{% else %}Hospital{% endif %}
+{% endblock %}
+{% block content %}
+
+<div class="container">
+{% if messages %}
+<div class="alert alert-warning" alert-{{ message.tags }}" role="alert">
+{% for message in messages  %}
+  {{message|safe}} - <a href="{% url "account:wishlist" %}" class="alert-link">Your Wishlist</a>.
+{% endfor %}
+</div>
+{% endif %}
+<div class="col-md-7 col-lg-7 p-0" >
+      <div class="card mb-3 border-0">
+        <div class="row g-0 p-0 pt-1">
+          <div class="col-md-12">
+            <div class="card-body p-1">
+              <h1 class="mb-0 h2 pe-4 pb-4 bg-white" id="title" ></h1>
+              <h2>{{hospital.Hospital_type}}</h2>
+              <div id="main1">
+              {% for image in hospital.hospital_image.all %}
+              {% comment %} {% if image.is_feature %} {% endcomment %}
+                
+                <img class="img-fluid mx-auto d-block" id="featured"  width="400px" alt="Responsive image" src="{{ image.image.url }}" xoriginal="{{ image.image.url }}"
+                alt="{{ image.image.alt_text }}">
+               {% endfor %}
+              </div>
+               <div class="column">
+                <h1>Our Name Is{{hospital.name}}</h1>
+               <p> Our Website <a href= "{{ hospital.website}}">Website<a></p>
+                  <p class="p-l lead text-body-secondary">Our Phone {{ hospital.phone_number}}<p>
+                <div class="disease_treatment">
+                  <h3 class="name">We Are: {{hospital.name}} And We Are Good At {{hospital.specialties_services}} </h3>
+                  <h2 class="beds">We Have {{hospital.hospital_beds}} hospital_beds </h2> 
+                  {{hospital.specialties_services}}
+                </div>
+                <div class="description">{{ hospital.hospital_profiles }}.
+                </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container mt-5">
+  <div class="form-group">
+    <select id="product-select" class="form-control custom-select">
+        <option value="0" disabled selected>Select Hospital</option>
+        <option value="hospital">{{ hospital.name }}</option>
+      </select>
+  </div>
+  <div class="form-group">
+    <input type="number" id="rating-control" class="form-control" step="0.1" max="5" placeholder="Rate 1 - 5" disabled>
+    <button onclick="submitRating()">Submit</button>
+  </div>
+  
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Top Hospital</th>
+        <th>Rating</th>
+      </tr>
+    </thead>
+    <tbody>
+
+
+
+
+
+      <tr class="hospital">
+        <td>{{hospital.name}}</td>
+        <td>
+          <div class="stars-outer">
+            <div class="stars-inner"></div>
+          </div>
+          <span class="number-rating"></span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+  <div>
+    <div class="map" >
+      {{ map_html|safe }}
+  </div>
+  
+  <script>
+    // Initial Ratings
+    const ratings = {
+      hospital: {{ hospital_rating }}
+    }
+
+
+  const hospitalRating = {{ hospital.rating|default:0}};
+  ratings.hospital = hospitalRating;
+    // Total Stars
+    const starsTotal = 5;
+
+    // Run getRatings when DOM loads
+    document.addEventListener('DOMContentLoaded', getRatings);
+
+    // Form Elements
+    const productSelect = document.getElementById('product-select');
+    const ratingControl = document.getElementById('rating-control');
+
+    // Init product
+    let product;
+
+    // Product select change
+    productSelect.addEventListener('change', (e) => {
+      product = e.target.value;
+      // Enable rating control
+      ratingControl.disabled = false;
+      ratingControl.value = ratings[product];
+    });
+
+    // Rating control change
+    ratingControl.addEventListener('blur', (e) => {
+      const rating = e.target.value;
+
+      // Make sure 5 or under
+      if (rating > 5) {
+        alert('Please rate 1 - 5');
+        return;
+      }
+
+      // Change rating
+      ratings[product] = rating;
+
+      getRatings();
+    });
+
+    // Get ratings
+    function getRatings() {
+      for (let rating in ratings) {
+        // Get percentage
+        const starPercentage = (ratings[rating] / starsTotal) * 100;
+
+        // Round to nearest 10
+        const starPercentageRounded = `${Math.round(starPercentage / 10) * 10}%`;
+
+        // Set width of stars-inner to percentage
+        document.querySelector(`.${rating} .stars-inner`).style.width = starPercentageRounded;
+
+        // Add number rating
+        document.querySelector(`.${rating} .number-rating`).innerHTML = ratings[rating];
+      }
+    }
+  </script>
+  
+  <script>
+    function submitRating() {
+      const ratingInput = document.getElementById('rating-control');
+      const ratingValue = ratingInput.value;
+  
+      fetch('/submit-rating', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'  // Add this line to include the CSRF token
+        },
+        body: JSON.stringify({ rating: ratingValue })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Rating submitted successfully, handle the response as needed
+          console.log('Rating submitted successfully');
+        } else {
+          // Rating submission failed, handle the response as needed
+          console.error('Rating submission failed:', data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+  </script>
+  
+
+  <script>
+    $(document).on('click', '#add-button', function (e) {
+      e.preventDefault();
+      $.ajax({
+        type: 'POST',
+        url: '{% url "basket:basket_add" %}',
+        data: {
+          productid: $('#add-button').val(),
+          productqty: $('#select option:selected').text(),
+          csrfmiddlewaretoken: "{{csrf_token}}",
+          action: 'post'
+        },
+        success: function (json) {
+          document.getElementById("basket-qty").innerHTML = json.qty
+        },
+        error: function (xhr, errmsg, err) {}
+      });
+    })
+  </script>
+
+
+  {% endblock %}

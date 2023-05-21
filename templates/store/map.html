@@ -1,0 +1,15 @@
+{% extends "../base.html" %}
+{% load static %}
+{% block stylesheet %}{% static 'store/css/store.css' %}{% endblock %}
+{% block title %}
+{% if hospotal %}{{ hospital.name }}{% else %}Map{% endif %}
+{% endblock %}
+{% block content %}
+<div class="container" id="map">
+    <div class="row mt-4">
+        <div class="col-md-10 offset-md-1">
+            {{ map1|safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}

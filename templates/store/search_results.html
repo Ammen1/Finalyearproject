@@ -1,0 +1,12 @@
+{% extends "../base.html" %}
+{% load static %}
+{% block stylesheet %}{% static 'store/css/store.css' %}{% endblock %}
+{% block title %}
+{% if hospital %}{{ hospital.name }}{% else %}Hospital{% endif %}
+{% endblock %}
+{% block content %}
+{% for hospital in hospital %}
+    <img src="{{ hospital.hospital.image.url }}">
+{% endfor %}
+
+{% endblock%}
