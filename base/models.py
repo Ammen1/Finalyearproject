@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from geopy.geocoders import Nominatim
+from django.core.exceptions import ValidationError
 
 
 class Category(MPTTModel):
@@ -52,34 +53,34 @@ class Topic(models.Model):
 
 
 
-class Country(models.Model):
-    """
-    Address
-    """
-    Hospital = models.ForeignKey("Hospital", verbose_name=_("category"),help_text=_("Not_required"), on_delete=models.CASCADE, blank=True)
-    state = models.CharField(max_length=100, null=True)
-    latitude = models.FloatField(default=0)
-    longitude = models.FloatField(default=0)
-    slug = models.SlugField(max_length=255, unique=True)
-    is_active = models.BooleanField(
-        verbose_name=_("Country visibility"),
-        help_text=_("Change country visibility"),
-        default=True,
-    )
+# class Country(models.Model):
+#     """
+#     Address
+#     """
+#     Hospital = models.ForeignKey("Hospital", verbose_name=_("category"),help_text=_("Not_required"), on_delete=models.CASCADE, blank=True)
+#     state = models.CharField(max_length=100, null=True)
+#     latitude = models.FloatField(default=0)
+#     longitude = models.FloatField(default=0)
+#     slug = models.SlugField(max_length=255, unique=True)
+#     is_active = models.BooleanField(
+#         verbose_name=_("Country visibility"),
+#         help_text=_("Change country visibility"),
+#         default=True,
+#     )
 
-    class Meta:
-        verbose_name_plural = 'Data'
+#     class Meta:
+#         verbose_name_plural = 'Data'
 
-    def save(self, *args, **kwargs):
-        self.latitude = geocoder.osm(self.country).lat
-        self.longitude = geocoder.osm(self.country).lng
-        return super().save(*args, **kwargs)
+#     def save(self, *args, **kwargs):
+#         self.latitude = geocoder.osm(self.country).lat
+#         self.longitude = geocoder.osm(self.country).lng
+#         return super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse("base:hospital_detail", args=[self.slug])
+#     def get_absolute_url(self):
+#         return reverse("base:hospital_detail", args=[self.slug])
 
-    def __str__(self):
-        return self.state
+#     def __str__(self):
+#         return self.state
         
 class Country(models.Model):
     """
@@ -120,8 +121,8 @@ class HospitalType(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = _("Product Type")
-        verbose_name_plural = _("Product Types")
+        verbose_name = _("HospitalType")
+        verbose_name_plural = _("HospitalType")
 
     def __str__(self):
         return self.name
@@ -154,17 +155,9 @@ class Hospital(models.Model):
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
     name = models.CharField(verbose_name=_("name"), help_text=_("Required"), max_length=255)
-    diagnostic_equipment = models.CharField(verbose_name=_("diagnostic_equipment"),help_text=_("Not Required"), blank=True,max_length=255)
-    monitoring_sife_support_equipment= models.CharField(verbose_name=_("monitoring_sife_support_equipment"),help_text=_("Not Required"), blank=True,max_length=255)
-    surgical_equipment= models.CharField(verbose_name=_("surgical_equipment"),help_text=_("Not Required"), blank=True,max_length=255)
-    patient_care_equipment= models.CharField(verbose_name=_("patient_care_equipment"),help_text=_("Not Required"), blank=True,max_length=255)
-    emergency_trauma_equipmen= models.CharField(verbose_name=_("emergency_trauma_equipmen"),help_text=_("Not Required"), blank=True,max_length=255)
-    pharmacy_medication_management= models.CharField(verbose_name=_("pharmacy_medication_management"),help_text=_("Not Required"), blank=True,max_length=255)
-    support_services= models.CharField(verbose_name=_("support_services"),help_text=_("Not Required"), blank=True,max_length=255)
+    equiments = models.TextField(verbose_name=_("equiments"),)
     accreditations_certifications= models.CharField(verbose_name=_("accreditations_certifications"),help_text=_("Not Required"), blank=True,max_length=255)
     doctor_information= models.CharField(verbose_name=_("doctor_information"),help_text=_("Not Required"), blank=True,max_length=255)
-    patient_resources= models.CharField(verbose_name=_("patient_resources"),help_text=_("Not Required"), blank=True,max_length=255)
-    wait_times= models.CharField(verbose_name=_("wait_times"),help_text=_("Not Required"), blank=True,max_length=255)
     insurance_payment_options= models.CharField(verbose_name=_("insurance_payment_options"),help_text=_("Not Required"), blank=True,max_length=255)
     phone_number = models.CharField(verbose_name=_("phone_number"), max_length=20)
     hospital_beds = models.IntegerField(verbose_name=_("hospital_beds"),default=0)
@@ -181,6 +174,12 @@ class Hospital(models.Model):
         ordering = ("-created_at",)
         verbose_name = _("Hospital")
         verbose_name_plural = _("Hospitals")
+
+    def clean(self):
+        # Custom model-level validation logic
+        if any(char.isdigit() for char in self.name):
+            raise ValidationError(_("Name must not contain numbers."))
+
 
     def save(self, *args, **kwargs):
         self.latitude = geocoder.osm(self.location).lat
@@ -274,8 +273,21 @@ class FeedBackUser(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.Manager()
 
+    def __str__(self):
+        return f"Feedback with {self.user_id.name} on {self.user_id.id}"
 
 
+class MessageUser(models.Model):
+    id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    message = models.TextField()
+    message_reply = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    objects = models.Manager()
+
+    def __str__(self):
+        return f"Chat with {self.user_id.name} on {self.user_id.id}"
 
 
 
@@ -298,12 +310,14 @@ class Doctors(models.Model):
     name = models.CharField(verbose_name=_("Name"), help_text=_("Required"), max_length=255)
     specialization = models.CharField(verbose_name=_("Specialization"), help_text=_("Required"), max_length=255)
     bio = models.TextField(verbose_name=_("Biography"), help_text=_("Enter doctor's biography"), null=True, blank=True)
-    country = models.CharField(verbose_name=_("Country"), help_text=_("Required"), max_length=100, null=True)
-    latitude = models.FloatField(default=0)
-    longitude = models.FloatField(default=0)
-    image = models.ImageField(verbose_name=_("Image"), help_text=_("Upload doctor's image"), upload_to='doctor_images/', null=True, blank=True)
+    image = models.ImageField(
+        verbose_name=_("image"),
+        help_text=_("Upload a hospital image"),
+        upload_to="images/",
+        default="images/default.png",
+    )
     slug = models.SlugField(max_length=255, unique=True)
-    is_active = models.BooleanField(verbose_name=_("Doctor visibility"),help_text=_("Change Doctor visibility"),default=True,
+    is_active = models.BooleanField(help_text=_("Change Doctor visibility"),default=True,
     )
     is_staff = models.BooleanField(
         verbose_name=_("Doctor visibility"),
@@ -315,14 +329,10 @@ class Doctors(models.Model):
     class Meta:
         verbose_name_plural = 'Doctors'
 
-    def save(self, *args, **kwargs):
-        geolocator = Nominatim(user_agent="your_app_name")
-        location = geolocator.geocode(self.country)
-        if location:
-            self.latitude = location.latitude
-            self.longitude = location.longitude
-        self.slug = slugify(self.name)
-        return super().save(*args, **kwargs)
+    def clean(self):
+        # Custom model-level validation logic
+        if any(char.isdigit() for char in self.name):
+            raise ValidationError(_("Name must not contain numbers."))
 
     def get_absolute_url(self):
         return reverse("appointment:doctor_detail", args=[self.slug])
@@ -383,8 +393,10 @@ class FeedBackDoctors(models.Model):
     feedback_reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    objects = models.Manager()    
+    objects = models.Manager()  
 
+    def __str__(self):
+        return f"Feedback with {self.staff_id.name} on {self.staff_id.id}"
 
 class NotificationDoctors(models.Model):
     id = models.AutoField(primary_key=True)

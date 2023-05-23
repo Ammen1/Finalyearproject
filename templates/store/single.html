@@ -5,7 +5,7 @@
 {% if hospotal %}{{ hospital.title }}{% else %}Hospital{% endif %}
 {% endblock %}
 {% block content %}
-
+<h1>{{hospital.name}}</h1>
 <div class="container">
 {% if messages %}
 <div class="alert alert-warning" alert-{{ message.tags }}" role="alert">
@@ -31,18 +31,17 @@
               </div>
                <div class="column">
                 <h1>Our Name Is{{hospital.name}}</h1>
-               <p> Our Website <a href= "{{ hospital.website}}">Website<a></p>
+               <h1> Our Website <a href= "{{ hospital.website}}">Website<a></h1>
                   <p class="p-l lead text-body-secondary">Our Phone {{ hospital.phone_number}}<p>
                 <div class="disease_treatment">
                   <h3 class="name">We Are: {{hospital.name}} And We Are Good At {{hospital.specialties_services}} </h3>
                   <h2 class="beds">We Have {{hospital.hospital_beds}} hospital_beds </h2> 
-                  {{hospital.specialties_services}}
+                 <h1>Specialties</h1> {{hospital.specialties_services}}<br>
+                 <h1>Insurance_payment_options</h1> {{ hospital.insurance_payment_options }}<br>
+                 <h1>Doctor_information</h1> {{ hospital.doctor_information }}.<br>
+                 <h1>Specialties</h1> {{ hospital.accreditations_certifications }}.<br>
+                 <h1>Accreditations_certifications</h1> {{ hospital.equiments }}.
                 </div>
-                <div class="description">{{ hospital.hospital_profiles }}.
-                </div>
-            </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

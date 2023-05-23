@@ -1,0 +1,160 @@
+{% extends "../sub_base.html" %}
+{% block title %} Users Message{% endblock %}
+
+
+
+{% block sub_content %}
+
+{% load static %}
+
+<section class="content">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- general form elements -->
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Users Message</h3>
+                        </div>
+                        <!-- /.card-header -->
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User ID</th>
+                                    <th>User Email</th>
+                                    <th>User name</th>
+                                    <th>Message</th>
+                                    <th>Sended On</th>
+                                    <th>Reply</th>
+                                </tr>
+                                </thead>
+
+                                {% for feedback in feedbacks %}
+                                <tbody>
+                                <tr>
+                                    <td>{{ feedback.id}}</td>
+                                    <td>{{ feedback.user_id.id }}</td>
+                                    <td>{{ feedback.user_id.email}}</td>
+                                    <td>{{ feedback.user_id.name }} </td>
+                                    <td>{{ feedback.feedback }}</td>
+                                    <td>{{ feedback.created_at }}</td>
+                                    <td>
+                                        {% if feedback.feedback_reply == "" %}
+                                        <button> <a href="/admin/base/feedbackuser/" class="nav-item nav-link">Reply</a></button>
+                                        {% else %}
+                                            {{ feedback.feedback_reply|slice:60 }}
+                                        {% endif %}
+                                        
+                                    </td>
+                                </tr>
+                                </tbody>
+                                {% endfor %}
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% comment %} <div>
+                {% for feedback in feedbacks %}
+                {{ feedback.feedback }}
+                {{ feedback.user_id.name }}
+                {% endfor %}
+            </div> {% endcomment %}
+
+        </div><!-- /.container-fluid -->
+      </section>
+
+      {% comment %} Modal to Reply Feedback {% endcomment %}
+      <!-- Modal -->
+        <div class="modal fade" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Reply Feedback</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Reply to: <b><span id="reply_name"></span></b></p>
+                <input type="hidden" id="reply_id" name="reply_id" />
+                <textarea class="form-control" rows="5" id="reply_message"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-block" id="reply_button">Reply</button>
+            </div>
+            </div>
+        </div>
+        </div>
+
+  {% endblock sub_content %}
+
+  {% comment %} Custom JS to Identify the Reply and Post Reply {% endcomment %}
+
+  {% block custom_js %}
+    <script>
+        $(document).ready(function(){
+            $(".reply_open_modal").click(function(){
+                // Getting Value from Table
+                var id = $(this).parents("tr").children("td:eq(0)").text(); //Getting Selected Row ID (Frist Column)
+                var name = $(this).parents("tr").children("td:eq(2)").text(); //Getting Selected Name (3rd Column)
+                
+                // Adding the Value from Table to Modal form
+                $("#reply_id").val(id);
+                $("#reply_name").text(name);
+            });
+
+            $(document).on("click", "#reply_button", function(){
+                //Disabling the Button while data is being saved in Server
+                $(this).attr("disabled", "disabled")
+                $(this).text("Sending Reply...")
+
+                //console.log("SAVE")
+                
+
+                var id=$("#reply_id").val();
+                var reply=$("#reply_message").val();
+                //console.log(student_data);
+
+                // Saving Attendance Data into Database
+
+                $.ajax({
+                    url:'{% url 'base:users_feedback_message_reply' %}',
+                    type:'POST',
+                    data:{id:id, reply:reply},
+                })
+
+                
+                .done(function(response){
+                    
+                    if(response=="True")
+                    {
+                        alert("Reply Sent!")
+                    }
+                    else
+                    {
+                        alert("Failed to Send Reply!")
+                    }
+                    location.reload()
+                    
+                    //console.log(response)
+                })
+
+                .fail(function(){
+                    alert("Error in Sending Feedback Reply.")
+                })
+
+            })
+
+        })
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    
+  {% endblock custom_js %}

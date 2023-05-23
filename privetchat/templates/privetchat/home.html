@@ -6,14 +6,14 @@
   <div class="container">
 
     <!-- Topics Start -->
-    {% include 'base/topics_component.html' %}
+    {% include 'privetchat/topics_component.html' %}
 
     <!-- Topics End -->
 
     <!-- Room List Start -->
     <div class="roomList">
       <div class="mobile-menu">
-        <form action="{% url 'groupchat:home' %}" method="GET" class="header__search">
+        <form action="{% url 'privetchat:home' %}" method="GET" class="header__search">
           <label>
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
               <title>search</title>
@@ -25,27 +25,27 @@
           </label>
         </form>
         <div class="mobile-menuItems">
-          <a class="btn btn--main btn--pill" href="{% url 'groupchat:topics' %}">Browse Topics</a>
-          <a class="btn btn--main btn--pill" href="{% url 'groupchat:activity' %}">Recent Activities</a>
+          <a class="btn btn--main btn--pill" href="{% url 'privetchat:topics' %}">Browse Topics</a>
+          <a class="btn btn--main btn--pill" href="{% url 'privetchat:activity' %}">Recent Activities</a>
         </div>
       </div>
 
       <div class="roomList__header">
         <div>
-          <h2>Study Rooms</h2>
+          <h2>Chat Rooms</h2>
           <p>{{room_count}} Rooms available</p>
         </div>
 
    
       </div>
 
-      {% include 'base/feed_component.html' %}
+      {% include 'privetchat/feed_component.html' %}
 
     </div>
     <!-- Room List End -->
 
     <!-- Activities Start -->
-    {% include 'base/activity_component.html' %}
+    {% include 'privetchat/activity_component.html' %}
 
     <!-- Activities End -->
   </div>

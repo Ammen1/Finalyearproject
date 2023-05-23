@@ -10,6 +10,28 @@ class UserAddressForm(forms.ModelForm):
         model = Address
         fields = ["full_name", "phone", "address_line", "address_line2", "town_city", "postcode"]
 
+
+    def clean_full_name(self):
+        town_city  = self.cleaned_data.get('town_city')
+        if re.search(r'\d', town_city):
+            raise forms.ValidationError("town_city should not contain numbers")
+        return town_city
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get('full_name')
+        if re.search(r'\d', full_name):
+            raise forms.ValidationError("full_names hould not contain numbers")
+        return full_name
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     # Widget updates omitted for brevity
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        # Add your custom validation logic here
+        if not phone.isdigit():
+            raise forms.ValidationError("Phone number must contain only digits.")
+        return phone
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["full_name"].widget.attrs.update(

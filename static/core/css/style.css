@@ -234,6 +234,7 @@ h6,
     color: var(--dark);
     outline: none;
     transition: .5s;
+    
 }
 
 .sticky-top.navbar-light .navbar-nav .nav-link {

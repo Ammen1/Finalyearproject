@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'rest_framework',
     "corsheaders",
     'crispy_forms',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -250,7 +251,7 @@ JAZZMIN_SETTINGS = {
 
     # List of model admins to search from the search bar, search bar omitted if excluded
     # If you want to use a single search field you dont need to use a list, you can use a simple string 
-    "search_model": ["auth.User", "auth.Hospital"],
+    # "search_model": ["auth.User", "auth.Hospital"],
 
     # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
     "user_avatar": "img-circle" ,
@@ -296,10 +297,10 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
 
     # Hide these apps when generating side menu e.g (auth)
-    "hide_apps": ['Group','Accounts'],
+    "hide_apps": ['Orders','checkout','promotion'],
 
     # Hide these models when generating side menu (e.g auth.user)
-    "hide_models": [],
+    "hide_models": ['product Types'],
 
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
     "order_with_respect_to": [],

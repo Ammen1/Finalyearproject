@@ -1,7 +1,7 @@
 {% for room in rooms %}
 <div class="roomListRoom">
     <div class="roomListRoom__header">
-        <a href="{% url 'groupchat:user-profile' room.host.id %}" class="roomListRoom__author">
+        <a href="#" class="roomListRoom__author">
             <div class="avatar avatar--small">
                 <img src="{{room.host.avatar.url}}" />
             </div>
@@ -12,12 +12,12 @@
         </div>
     </div>
     <div class="roomListRoom__content">
-        <a href="{% url 'groupchat:room' room.id %}">{{room.name}}</a>
+        <a href="{% url 'privetchat:room' room.id %}">{{room.name}}</a>
     </div>
     <div class="roomListRoom__meta">
-        <a href="{% url 'groupchat:room' room.id %}" class="roomListRoom__joined">
+        <a href="{% url 'privetchat:room' room.id %}" class="roomListRoom__joined">
             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                <title>user-group</title>
+                <title>user</title>
                 <path
                     d="M30.539 20.766c-2.69-1.547-5.75-2.427-8.92-2.662 0.649 0.291 1.303 0.575 1.918 0.928 0.715 0.412 1.288 1.005 1.71 1.694 1.507 0.419 2.956 1.003 4.298 1.774 0.281 0.162 0.456 0.487 0.456 0.85v4.65h-4v2h5c0.553 0 1-0.447 1-1v-5.65c0-1.077-0.56-2.067-1.461-2.584z">
                 </path>

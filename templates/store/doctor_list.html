@@ -15,8 +15,9 @@
                        <a href="/"class="btn btn-dark w-100 py-3" >Appointment</a>
                     </div>
                 </div>
+                {% for doctor in doctors %}
                 <div class="col-lg-4 wow slideInUp" data-wow-delay="0.3s">
-                    {% for doctor in doctors %}
+                    
                     <div class="team-item">
                         <div class="position-relative rounded-top" style="z-index: 1;">
                             <img class="img-fluid rounded-top w-100" src="{{ doctor.image.url }}" alt="">
@@ -32,14 +33,12 @@
                             <p class="text-primary mb-0">Specialization:{{ doctor.specialization }}</p></a>
                         </div>
                     </div>
-                   
-                </li>
-                {% empty %}
-                    <li>No doctors available.</li>
-                {% endfor %}
-                </ul>
-                </div>
-                <div class="col-lg-4 wow slideInUp" data-wow-delay="0.6s">
+                    
+            </div>
+            {% endfor %}
+
+               
+                {% comment %} <div class="col-lg-4 wow slideInUp" data-wow-delay="0.6s">
                     <div class="team-item">
                         <div class="position-relative rounded-top" style="z-index: 1;">
                             <img class="img-fluid rounded-top w-100" src="{% static 'images/team-2.jpg' %}" alt="">
@@ -109,13 +108,13 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
     <!-- Team End -->
 
 
     <!-- Optional JavaScript code -->
     <script>
-        // Your JavaScript code here
+      
     </script>
 
 {% endblock %}

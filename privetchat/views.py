@@ -8,6 +8,11 @@ from account.models import Customer
 from  .forms import UserForm,RoomForm
 
 
+
+
+
+
+
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
@@ -29,7 +34,7 @@ def home(request):
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
-    room_messages = room.message_set.all()
+    # room_messages = room.Message.all()
     participants = room.participants.all()
 
     if request.method == 'POST':
@@ -41,13 +46,25 @@ def room(request, pk):
         room.participants.add(request.user)
         return redirect('privetchat:room', pk=room.id)
 
-    context = {'room': room, 'room_messages': room_messages,
+    context = {'room': room, 
                'participants': participants}
     return render(request, 'privetchat/room.html', context)
+
+@login_required(login_url='login')
+def userProfile(request, pk):
+    user = Customer.objects.get(id=pk)
+    rooms = user.room_set.all()
+    room_messages = user.message_set.all()
+    topics = Topic.objects.all()
+    context = {'user': user, 'rooms': rooms,
+               'room_messages': room_messages, 'topics': topics}
+    return render(request, 'privetchat/profile.html', context)
 
 
 @login_required(login_url='login')
 def createRoom(request):
+    if request.user != user.is_staff:
+        return HttpResponse('Your are not allowed here!!')
     form = RoomForm()
     topics = Topic.objects.all()
     if request.method == 'POST':
@@ -84,7 +101,7 @@ def updateRoom(request, pk):
         return redirect('home')
 
     context = {'form': form, 'topics': topics, 'room': room}
-    return render(request, 'privetchat/room_form.html', context)
+    return render(request, 'base/room_form.html', context)
 
 
 @login_required(login_url='login')
@@ -97,7 +114,7 @@ def deleteRoom(request, pk):
     if request.method == 'POST':
         room.delete()
         return redirect('home')
-    return render(request, 'privatechat/delete.html', {'obj': room})
+    return render(request, 'privechat/delete.html', {'obj': room})
 
 
 @login_required(login_url='login')
@@ -109,9 +126,22 @@ def deleteMessage(request, pk):
 
     if request.method == 'POST':
         message.delete()
-        return redirect('home')
-    return render(request, 'privatechat/delete.html', {'obj': message})
+        return redirect('private:home')
+    return render(request, 'privetchat/delete.html', {'obj': message})
 
+
+@login_required(login_url='login')
+def updateUser(request):
+    user = request.user
+    form = UserForm(instance=user)
+
+    if request.method == 'POST':
+        form = UserForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('privetchat:user-profile', pk=user.id)
+
+    return render(request, 'privet/update-user.html', {'form': form})
 
 
 def topicsPage(request):
@@ -126,4 +156,19 @@ def activityPage(request):
 
 
 
+# from django.http import JsonResponse
 
+# def submit_rating(request):
+#     if request.method == 'POST':
+#         rating = request.POST.get('rating')
+#         # Perform any validation or processing of the rating value here
+
+#         # Update the hospital_rating in your Django model accordingly
+#         # Assuming you have a Hospital model with a hospital_rating field
+#         hospital = Hospital.objects.get(pk=1)  # Replace 1 with the actual hospital record you want to update
+#         hospital.hospital_rating = rating
+#         hospital.save()
+
+#         return JsonResponse({'success': True})
+#     else:
+#         return JsonResponse({'success': False, 'message': 'Invalid request method'})

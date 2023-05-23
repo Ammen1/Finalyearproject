@@ -7,7 +7,7 @@
 {% block content %}
 
 
-{% if user.is_authenticated %}
+
 <h2>{{ doctor.name }}</h2>
 <div class="container-fluid py-5">
   <div class="container">
@@ -20,7 +20,7 @@
                           <a class="btn btn-primary btn-square m-1" href="#"><i class="fab fa-twitter fw-normal"></i></a>
                           <a class="btn btn-primary btn-square m-1" href="#"><i class="fab fa-facebook-f fw-normal"></i></a>
                           <a class="btn btn-primary btn-square m-1" href="#"><i class="fab fa-linkedin-in fw-normal"></i></a>
-                          <a class="btn btn-primary btn-square m-1" href="{% url 'privetchat:home'  %}"><i class="fab fa-instagram fw-normal"></i></a>
+                          <a class="btn btn-primary btn-square m-1" href="{% url 'base:users_feedback'  %}"><i class="fab fa-instagram fw-normal"></i></a>
                       </div>
                   </div>
                   <div class="team-text position-relative bg-light text-center rounded-bottom p-4 pt-5">
@@ -36,12 +36,16 @@
           <p>Country: {{ doctor.country }}</p>
           <ul>
             <h3>Appointments:</h3>
+            <h1>{{ doctor.name }}</div>
+              <h1>{{user.name }}</div>
             {% for appointment in appointments %}
               <li>{{ appointment.appointment_date }} - {{ appointment.patient_name }}</li>
             {% empty %}
               <li>No appointments found.</li>
             {% endfor %}
-          </ul>
-          {% endif %}
+              </ul>
+
+           
+              {% comment %} {% include 'account/dashboard/users_feedback_template.html' %} {% endcomment %}
 
 {% endblock %}

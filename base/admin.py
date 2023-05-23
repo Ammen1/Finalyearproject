@@ -4,7 +4,7 @@ from django import forms
 
 # Register your models here.
 
-from .models import Doctors,Appointment,Category, Country,Hospital,Review,FeedBackUser,FeedBackDoctors,NotificationUsers,NotificationDoctors,HospitalImage,HospitalType,LeaveReportDoctors, HospitalSpecification
+from .models import Doctors,Appointment,Category, Country,Hospital,Review,FeedBackUser,FeedBackDoctors,NotificationUsers,NotificationDoctors,HospitalImage,HospitalType,LeaveReportDoctors, HospitalSpecification,MessageUser
 
 
 
@@ -19,6 +19,8 @@ admin.site.register(NotificationDoctors)
 admin.site.register(Category)
 admin.site.register(HospitalType)
 admin.site.register(LeaveReportDoctors)
+admin.site.register(MessageUser)
+# admin.site.register(website)
 # admin.site.register(HospitalSpecificationValue)
 
 class HospitalImageInline(admin.TabularInline):
@@ -35,7 +37,7 @@ class HospitalImageInline(admin.TabularInline):
 class HospitalAdmin(admin.ModelAdmin):
     resource_class = Hospital
     fieldsets = (
-        ("general", {"fields": ("name","diagnostic_equipment","location","latitude","longitude","monitoring_sife_support_equipment","surgical_equipment","patient_care_equipment","emergency_trauma_equipmen","pharmacy_medication_management","support_services","accreditations_certifications","doctor_information","patient_resources","wait_times","insurance_payment_options","phone_number","hospital_beds","slug","title","hospital_profiles","specialties_services")}),
+        ("general", {"fields": ("name","equiments","location","latitude","longitude","accreditations_certifications","doctor_information","insurance_payment_options","phone_number","hospital_beds","slug","title","hospital_profiles","specialties_services")}),
         ("other", {"fields": ("is_active",)}),
     )
     inlines = (HospitalImageInline,)

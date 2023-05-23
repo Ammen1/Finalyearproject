@@ -30,7 +30,7 @@
 
         </div>
         <div class="activities__boxContent">
-            <p>replied to post “<a href="{% url 'groupchat:room' message.room.id %}">{{message.room}}</a>”</p>
+            <p>replied to post “<a href="{% url 'privetchat:room' message.room.id %}">{{message.room}}</a>”</p>
             <div class="activities__boxRoomContent">{{message.body|slice:150}}<h4>more..</h4></div>
         </div>
     </div>

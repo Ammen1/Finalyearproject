@@ -1,5 +1,6 @@
 from django.db import models
 from account.models import Customer
+from base.models import Doctors
 
 
 class Topic(models.Model):
@@ -9,11 +10,11 @@ class Topic(models.Model):
         return self.name
 
 class Room(models.Model):
-    host = models.ForeignKey(Customer,related_name='user', on_delete=models.SET_NULL, null=True)
+    host = models.ForeignKey(Doctors,related_name='user', on_delete=models.SET_NULL, null=True)
     topic = models.ForeignKey(Topic,related_name='topic', on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    participants = models.OneToOneField(Customer, on_delete=models.SET_NULL, null=True, related_name='participant', blank=True)
+    participants = models.ManyToManyField(Customer, related_name='participant',blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

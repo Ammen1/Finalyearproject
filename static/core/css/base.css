@@ -287,7 +287,7 @@ html,h1, body, p, div{
 #main img{
     width: 350px;
    border-radius: 1px;
-   -webkit-box-reflect: below 0px linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.4))
+   /* -webkit-box-reflect: below 0px linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.4)) */
    
 }
 

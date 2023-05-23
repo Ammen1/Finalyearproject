@@ -28,6 +28,13 @@ urlpatterns = [
     path('staff_leave_reject/<leave_id>/', views.staff_leave_reject, name="staff_leave_reject"),
     path('users_feedback/', views.users_feedback, name="users_feedback"),
     path('users_feedback_save/', views.users_feedback_save, name="users_feedback_save"),
+    path("services/", views.services, name="services"),
+    path("about/", views.about, name="about"),
+    path("contact/", views.contact, name="contact"),
+    path('users_message/', views.users_message, name="users_message"),
+    path('users_message_save/', views.users_message_save, name="users_message_save"),
+    path('users_message_view/', views.users_message_view, name="users_message_view"),
+    path('users_message_reply/', views.users_message_reply, name="users_message_reply"),
 
 
     

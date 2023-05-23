@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import FileSystemStorage 
 from django.shortcuts import render
-from .models import Doctors,LeaveReportDoctors, Appointment, Country,Hospital,Review,FeedBackUser,FeedBackDoctors,NotificationUsers,NotificationDoctors,Category
+from .models import Doctors,LeaveReportDoctors,MessageUser, Country,Hospital,FeedBackUser,FeedBackDoctors,Appointment
 import folium
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -109,13 +109,13 @@ def category_list(request, category_slug=None):
 def hospital_all(request):
     if 'q' in request.GET:
         q = request.GET['q']
-        multiple_q = Q(Q(name__icontains=q)| Q(title__icontains=q) | Q(specialties_services__icontains=q) | Q(location__icontains=q))
+        multiple_q = Q(Q(name__icontains=q)| Q(title__icontains=q) | Q(specialties_services__icontains=q) | Q(location__icontains=q)| Q(equiments__icontains=q))
         hospitals = Hospital.objects.prefetch_related("hospital_image").filter(multiple_q, is_active=True)
     else:
         hospitals = Hospital.objects.prefetch_related("hospital_image").filter(is_active=True)
-
+    doctors = Doctors.objects.all()
     hospital_count = hospitals.count()
-    context = {"hospitals": hospitals, 'hospital_count':hospital_count}
+    context = {"hospitals": hospitals, 'hospital_count':hospital_count,'doctors':doctors}
     return render(request, "store/index.html", context)
 
 
@@ -140,7 +140,7 @@ def hospital_detail(request, slug):
     distance_to_hospital = calculate_distance(ref_location, hospital_location)
 
     # Create a folium map for the hospital location
-    hospital_map = folium.Map(location=hospital_location, zoom_start=6)
+    hospital_map = folium.Map(location=hospital_location, zoom_start=7)
     folium.Marker(location=hospital_location, popup=hospital.location).add_to(hospital_map)
 
     # Add the distance from the reference location to the hospital location as a popup message
@@ -321,7 +321,7 @@ def staff_feedback_save(request):
 @cache_control(no_data=True, must_revalidade=True, no_strore=True)
 @login_required(login_url='login')
 def users_feedback_message(request):
-    admin_home = Customer.objects.get(id=request.user.id, is_superuser=True)
+    admin_home = Customer.objects.get(id=request.user.id)
     feedbacks = FeedBackUser.objects.all()
     context = {
         "feedbacks": feedbacks
@@ -333,7 +333,7 @@ def users_feedback_message(request):
 @cache_control(no_data=True, must_revalidade=True, no_strore=True)
 @login_required(login_url='login')
 def users_feedback_message_reply(request):
-    admin_home = Customer.objects.get(id=request.user.id, is_superuser=True)
+    admin_home = Customer.objects.get(id=request.user.id,is_superuser=True)
     feedback_id = request.POST.get('id')
     feedback_reply = request.POST.get('reply')
 
@@ -345,6 +345,7 @@ def users_feedback_message_reply(request):
 
     except:
         return HttpResponse("False")
+
 
 @cache_control(no_data=True, must_revalidade=True, no_strore=True)
 @login_required(login_url='login')
@@ -435,3 +436,122 @@ def users_feedback_save(request):
             messages.error(request, "Failed to Send Feedback.")
             return redirect('base:users_feedback')
 
+def services(request):
+    url = ("https://raw.githubusercontent.com/python-visualization/folium/main/examples/data")
+    vis1 = json.loads(requests.get(f"{url}/vis1.json").text)
+    vis2 = json.loads(requests.get(f"{url}/vis2.json").text)
+    vis3 = json.loads(requests.get(f"{url}/vis3.json").text)
+    data = Country.objects.all()
+    data_list = Country.objects.values_list('latitude', 'longitude')
+
+    map1 = folium.Map(location=[10.2116702, 38.6521203],
+                      tiles='CartoDB Dark_Matter', zoom_start=8)
+    tooltip = "Click me!"
+    folium.Marker([10.2116702, 38.6521203], popup="<i>{{ country }}</i>", tooltip=tooltip).add_to(map1)
+ 
+    map1 = folium.Map(location=[8.5410261, 39.2705461], zoom_start=7, tiles="Stamen Terrain")
+
+    folium.Marker(location=[9.0107934, 38.7612525],popup=folium.Popup(max_width=450).add_child(folium.Vega(vis1, width=450, height=250)),).add_to(map1)
+
+    folium.Marker(location=[8.286087, 37.781844],popup=folium.Popup(max_width=450).add_child(folium.Vega(vis2, width=450, height=250)),).add_to(map1)
+
+    folium.Marker(location=[7.2116702, 40.6521203],popup=folium.Popup(max_width=450).add_child(folium.Vega(vis3, width=450, height=250)),).add_to(map1)
+    plugins.HeatMap(data_list).add_to(map1)
+    plugins.Fullscreen(position='topright').add_to(map1)
+    map1 = map1._repr_html_()
+    context = {
+        'map1': map1
+    }
+   
+
+    return render(request, 'store/service.html',context)
+
+
+def about(request):
+    return render(request, 'store/about.html')    
+
+
+def contact(request):
+    return render(request, 'store/contact.html')    
+
+
+
+
+
+
+
+#privetchat
+
+@cache_control(no_data=True, must_revalidade=True, no_strore=True)
+def users_message(request):
+    student_obj = Customer.objects.get(id=request.user.id)
+    feedback_data = MessageUser.objects.filter(user_id=student_obj)
+    context = {
+        "feedback_data": feedback_data
+    }
+    return render(request, 'account/dashboard/users_message.html', context)
+
+@cache_control(no_data=True, must_revalidade=True, no_strore=True)
+def users_message_save(request):
+    if request.method != "POST":
+        messages.error(request, "Invalid Method.")
+        return redirect('base:users_message')
+    else:
+        feedback = request.POST.get('feedback_message')
+        student_obj = Customer.objects.get(id=request.user.id)
+
+        try:
+            add_feedback = MessageUser(user_id=student_obj, feedback=feedback, feedback_reply="")
+            add_feedback.save()
+            messages.success(request, "message Sent.")
+            return redirect('base:users_message')
+        except:
+            messages.error(request, "Failed to Send users_message.")
+            return redirect('base:users_message')
+
+
+
+@login_required(login_url='login')
+def users_message_view(request):
+    admin_home = Customer.objects.get(id=request.user.id,is_staff=True)
+    feedbacks = MessageUser.objects.all()
+    context = {
+        "feedbacks": feedbacks
+    }
+    return render(request, 'account/dashboard/users_template_view.html', context)
+
+
+@csrf_exempt
+@cache_control(no_data=True, must_revalidade=True, no_strore=True)
+@login_required(login_url='login')
+def users_message_reply(request):
+    admin_home = Customer.objects.get(id=request.user.id, is_staff=True)
+    feedback_id = request.POST.get('id')
+    feedback_reply = request.POST.get('reply')
+
+    try:
+        feedback = FeedBackDoctors.objects.get(id=feedback_id)
+        feedback.feedback_reply = feedback_reply
+        feedback.save()
+        return HttpResponse("True")
+
+    except:
+        return HttpResponse("False")
+
+
+
+# @csrf_exempt
+# @login_required(login_url='login')
+# def users_feedback_message_reply(request):
+#     admin_home = Customer.objects.get(id=request.user.id,is_staff=True)
+#     feedback_id = request.POST.get('id')
+#     feedback_reply = request.POST.get('reply')
+
+#     try:
+#         feedback = FeedBackUser.objects.get(id=feedback_id)
+#         feedback.feedback_reply = feedback_reply
+#         feedback.save()
+#         return HttpResponse("True")
+
+#     except:
+#         return HttpResponse("False")
